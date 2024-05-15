@@ -3,12 +3,15 @@ require("dotenv").config({ path: "./env/config.env" });
 const Web3 = require("web3");
 const web3rpc = new Web3(
     // new Web3.providers.HttpProvider("https://polygon-mumbai.api.onfinality.io/public")
-    new Web3.providers.HttpProvider("http://127.0.0.1:8545")
+    new Web3.providers.HttpProvider("https://test.doschain.com")
 );
 const data = require("./tokenbound.json");
 
 // const contract = new web3rpc.eth.Contract(abi, contractAddress);
 const deploy2 = async () => {
+    // get chainID
+    const chainID = await web3rpc.eth.getChainId();
+    console.log("chainID", chainID);
     // check create2 factory available
     const create2Factory = await web3rpc.eth.getCode("0x4e59b44847b379578588920ca78fbf26c0b4956c");
     if (create2Factory === "0x") {
@@ -34,7 +37,7 @@ const subDeploy = async (_index) => {
                 "Multicall3 not found, only 0x05f32B3cC3888453ff71B01135B34FF8e41263F2 can deploy multicall3"
             );
             return;
-        }
+        } else return;
     }
     const tx = {
         to: "0x4e59b44847b379578588920cA78FbF26c0B4956C",
@@ -43,8 +46,8 @@ const subDeploy = async (_index) => {
     };
     const signed = await web3rpc.eth.accounts.signTransaction(
         tx,
-        // process.env.WALLET_DEPLOY_PRIVATE_KEY
         process.env.WALLET_DEPLOY_PRIVATE_KEY
+        // process.env.WALLET_DEPLOY_PRIVATE_KEY_TEST
     );
     const receipt = await web3rpc.eth.sendSignedTransaction(signed.rawTransaction);
     console.log(receipt);
