@@ -3,7 +3,7 @@ require("dotenv").config({ path: "./env/config.env" });
 const Web3 = require("web3");
 const web3rpc = new Web3(
     // new Web3.providers.HttpProvider("https://polygon-mumbai.api.onfinality.io/public")
-    new Web3.providers.HttpProvider("https://test.doschain.com")
+    new Web3.providers.HttpProvider("http://localhost:8545")
 );
 const data = require("./tokenbound.json");
 
@@ -13,7 +13,9 @@ const deploy2 = async () => {
     const chainID = await web3rpc.eth.getChainId();
     console.log("chainID", chainID);
     // check create2 factory available
-    const create2Factory = await web3rpc.eth.getCode("0x4e59b44847b379578588920ca78fbf26c0b4956c");
+    const create2Factory = await web3rpc.eth.getCode(
+        "0x4e59b44847b379578588920ca78fbf26c0b4956c"
+    );
     if (create2Factory === "0x") {
         console.log("Create2 factory not found");
         return;
@@ -25,16 +27,18 @@ const deploy2 = async () => {
             console.log(`Deploying ${data[i][1]} at ${data[i][0]}...`);
             await subDeploy(i);
         } else {
-            console.log(`Skipping ${data[i][1]} at ${data[i][0]}...`);
+            console.log(`Alreadly ${data[i][1]} at ${data[i][0]}...`);
         }
     }
 };
 const subDeploy = async (_index) => {
     if (data[_index][0] === "0xEF7B07Db21d449C50b00De4563FfFe4C9dd33f1f") {
-        const multicall3 = await web3rpc.eth.getCode("0xcA11bde05977b3631167028862bE2a173976CA11");
+        const multicall3 = await web3rpc.eth.getCode(
+            "0xcA11bde05977b3631167028862bE2a173976CA11"
+        );
         if (multicall3 === "0x") {
             console.log(
-                "Multicall3 not found, only 0x05f32B3cC3888453ff71B01135B34FF8e41263F2 can deploy multicall3"
+                "Multicall3 not found, only 0x05f32B3cC3888453ff71B01135B34FF8e41263F2 can deploy Multicall3 to deploy Layer2 contract"
             );
             return;
         } else return;
@@ -49,7 +53,9 @@ const subDeploy = async (_index) => {
         process.env.WALLET_DEPLOY_PRIVATE_KEY
         // process.env.WALLET_DEPLOY_PRIVATE_KEY_TEST
     );
-    const receipt = await web3rpc.eth.sendSignedTransaction(signed.rawTransaction);
+    const receipt = await web3rpc.eth.sendSignedTransaction(
+        signed.rawTransaction
+    );
     console.log(receipt);
 };
 deploy2();
