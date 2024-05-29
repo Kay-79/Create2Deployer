@@ -1,13 +1,8 @@
-// call contract with web3 on bsc testnet
 require("dotenv").config({ path: "./env/config.env" });
 const Web3 = require("web3");
-const web3rpc = new Web3(
-    // new Web3.providers.HttpProvider("https://polygon-mumbai.api.onfinality.io/public")
-    new Web3.providers.HttpProvider("http://localhost:8545")
-);
+const web3rpc = new Web3(new Web3.providers.HttpProvider(process.env.RPC));
 const data = require("./tokenbound.json");
 
-// const contract = new web3rpc.eth.Contract(abi, contractAddress);
 const deploy2 = async () => {
     // get chainID
     const chainID = await web3rpc.eth.getChainId();
@@ -22,7 +17,6 @@ const deploy2 = async () => {
     }
     for (let i = 0; i < data.length; i++) {
         const bytecode = await web3rpc.eth.getCode(data[i][0]);
-        // console.log(data[i][0], bytecode);
         if (bytecode === "0x") {
             console.log(`Deploying ${data[i][1]} at ${data[i][0]}...`);
             await subDeploy(i);
@@ -51,7 +45,6 @@ const subDeploy = async (_index) => {
     const signed = await web3rpc.eth.accounts.signTransaction(
         tx,
         process.env.WALLET_DEPLOY_PRIVATE_KEY
-        // process.env.WALLET_DEPLOY_PRIVATE_KEY_TEST
     );
     const receipt = await web3rpc.eth.sendSignedTransaction(
         signed.rawTransaction
